@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum RegistrationStatus {
+  BELUM_MENGISI
+  MENUNGGU_VERIFIKASI
+  LULUS
+  TIDAK_LULUS
+}
+
+model User {
+  id           String        @id @default(uuid())
+  nama         String
+  email        String        @unique
+  password     String
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  registration Registration?
+}
+
+model Registration {
+  id           String             @id @default(uuid())
+  userId       String             @unique
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idRegistrasi String             @unique // Contoh: PPDB26-001
+  namaLengkap  String
+  ttl          String // Tempat, Tanggal Lahir (Format: Tempat, DD-MM-YYYY)
+  namaOrangTua String
+  asalSekolah  String // Asal TK / PAUD
+  fotoKk       String
+  ktpOrangTua  String
+  fotoAkte     String
+  passFoto     String
+  status       RegistrationStatus @default(MENUNGGU_VERIFIKASI)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
