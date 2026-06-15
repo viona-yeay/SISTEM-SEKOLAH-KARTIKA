@@ -1,50 +1,76 @@
 import Image from "next/image";
-import { Camera, Image as ImageIcon } from "lucide-react";
+import { Camera } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
+import { prisma } from "@/lib/prisma";
 
-export default function Galeri() {
-  const galeriItem = [
-    {
-      image: "/gedung_sekolah.png",
-      category: "Fasilitas",
-      title: "Gedung Kampus & Taman Belajar",
-      desc: "Suasana depan gedung utama SD KARTIKA X-4 dengan taman asri dan ruang hijau terbuka tempat siswa berinteraksi.",
-    },
-    {
-      image: "/kepala_sekolah.png",
-      category: "Acara",
-      title: "Sosialisasi Komite Sekolah & Wali Murid",
-      desc: "Pertemuan koordinasi berkala antara pihak manajemen sekolah dengan komite sekolah dan orang tua/wali murid.",
-    },
-    {
-      image: "/gedung_sekolah.png",
-      category: "Pembelajaran",
-      title: "KBM Interaktif di Laboratorium Komputer",
-      desc: "Siswa kelas 5 sedang antusias melakukan praktik pemrogaman grafis dasar menggunakan Scratch di laboratorium komputer.",
-    },
-    {
-      image: "/BERENANG.jpeg",
-      category: "Ekstrakurikuler",
-      title: "Latihan Rutin Renang",
-      desc: "Kegiatan ekstrakurikuler renang untuk meningkatkan kebugaran dan kemampuan berenang siswa.",
-    },
-    {
-      image: "/KARATE.jpeg",
-      category: "Ekstrakurikuler",
-      title: "Kegiatan Ekstrakurikuler Karate",
-      desc: "Sesi latihan rutin ekstrakurikuler Karate SD Kartika X-4.",
-    },
-    {
-      image: "/KREASI.jpeg",
-      category: "Ekstrakurikuler",
-      title: "Kegiatan Ekstrakurikuler Kreasi",
-      desc: "Kegiatan ekstrakurikuler Kreasi SD Kartika X-4.",
-    },
-  ];
+type KegiatanRow = {
+  id: string;
+  judul: string;
+  kategori: string;
+  deskripsi: string;
+  gambarUrl: string;
+  createdAt: Date;
+};
+
+// Selalu ambil data terbaru dari database
+export const dynamic = "force-dynamic";
+
+// Item bawaan yang ditampilkan jika admin belum menambahkan kegiatan apa pun
+const galeriDefault = [
+  {
+    image: "/gedung_sekolah.png",
+    category: "Fasilitas",
+    title: "Gedung Kampus & Taman Belajar",
+    desc: "Suasana depan gedung utama SD KARTIKA X-4 dengan taman asri dan ruang hijau terbuka tempat siswa berinteraksi.",
+  },
+  {
+    image: "/kepala_sekolah.png",
+    category: "Acara",
+    title: "Sosialisasi Komite Sekolah & Wali Murid",
+    desc: "Pertemuan koordinasi berkala antara pihak manajemen sekolah dengan komite sekolah dan orang tua/wali murid.",
+  },
+  {
+    image: "/BERENANG.jpeg",
+    category: "Ekstrakurikuler",
+    title: "Latihan Rutin Renang",
+    desc: "Kegiatan ekstrakurikuler renang untuk meningkatkan kebugaran dan kemampuan berenang siswa.",
+  },
+  {
+    image: "/KARATE.jpeg",
+    category: "Ekstrakurikuler",
+    title: "Kegiatan Ekstrakurikuler Karate",
+    desc: "Sesi latihan rutin ekstrakurikuler Karate SD Kartika X-4.",
+  },
+  {
+    image: "/KREASI.jpeg",
+    category: "Ekstrakurikuler",
+    title: "Kegiatan Ekstrakurikuler Kreasi",
+    desc: "Kegiatan ekstrakurikuler Kreasi SD Kartika X-4.",
+  },
+];
+
+export default async function Galeri() {
+  let galeriItem = galeriDefault;
+
+  try {
+    const kegiatan = await prisma.kegiatan.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (kegiatan.length > 0) {
+      galeriItem = kegiatan.map((k: KegiatanRow) => ({
+        image: k.gambarUrl,
+        category: k.kategori,
+        title: k.judul,
+        desc: k.deskripsi,
+      }));
+    }
+  } catch (error) {
+    console.error("Gagal memuat galeri dari database:", error);
+  }
 
   return (
     <div className="py-16 sm:py-24 space-y-16 overflow-hidden">
-      {/* Header Galeri */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
         <AnimatedSection direction="down">
           <span className="text-xs font-bold tracking-wider text-blue-600 uppercase bg-blue-50 px-3.5 py-1.5 rounded-full">
@@ -63,7 +89,6 @@ export default function Galeri() {
         </AnimatedSection>
       </section>
 
-      {/* Grid Foto Kegiatan */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {galeriItem.map((item, index) => (

@@ -1,38 +1,40 @@
 # Website & Aplikasi PPDB Online SD KARTIKA X-4
 
-Website Profil Sekolah dan Sistem Penerimaan Peserta Didik Baru (PPDB) Online terintegrasi untuk SD KARTIKA X-4. Dibangun menggunakan Next.js (App Router), Tailwind CSS, Prisma ORM, MySQL (XAMPP), dan NextAuth.js v5.
+Website Profil Sekolah dan Sistem Penerimaan Peserta Didik Baru (PPDB) Online terintegrasi untuk SD KARTIKA X-4. Dibangun menggunakan Next.js (App Router), Tailwind CSS, Prisma ORM, PostgreSQL (Supabase), dan NextAuth.js v5.
 
 ---
 
 ## 🛠️ Persyaratan Sistem
 Sebelum menjalankan aplikasi, pastikan komputer Anda telah terinstal:
 - [Node.js](https://nodejs.org/) (Versi LTS terbaru)
-- [XAMPP](https://www.apachefriends.org/index.html) (Untuk server lokal MySQL/MariaDB)
+- Akun [Supabase](https://supabase.com/) (database PostgreSQL terkelola, gratis)
 
 ---
 
-## ⚙️ Cara Setup Database di XAMPP
+## ⚙️ Cara Setup Database di Supabase
 
 Aplikasi ini menggunakan **Prisma ORM** yang telah dikonfigurasi dengan sistem **inisialisasi database otomatis**. Anda tidak perlu mengimpor tabel SQL secara manual. Ikuti langkah di bawah:
 
-1. **Aktifkan XAMPP**:
-   Buka aplikasi *XAMPP Control Panel*, kemudian klik **Start** pada bagian **Apache** dan **MySQL**.
-2. **Buat Database Kosong**:
-   Buka browser Anda dan buka tautan [http://localhost/phpmyadmin](http://localhost/phpmyadmin). Buat database baru dengan nama:
-   `sd_kartika_x4`
+1. **Buat Project Supabase**:
+   Masuk ke [dashboard Supabase](https://supabase.com/dashboard), klik **New Project**, lalu tentukan nama project dan **Database Password** (simpan password ini).
+2. **Ambil String Koneksi**:
+   Buka **Project Settings > Database > Connection string**. Salin dua URL berikut:
+   - **Transaction Pooler** (port `6543`) untuk `DATABASE_URL`
+   - **Direct Connection** (port `5432`) untuk `DIRECT_URL`
 3. **Konfigurasi Berkas `.env`**:
-   Buka berkas `.env` di direktori utama proyek Anda, lalu pastikan baris `DATABASE_URL` telah disesuaikan dengan kredensial XAMPP lokal Anda:
+   Buka berkas `.env` di direktori utama proyek, lalu isi sesuai kredensial Supabase Anda (ganti `[PASSWORD]`, `[PROJECT-REF]`, dan `[REGION]`):
    ```env
-   # Format: mysql://USERNAME:PASSWORD@HOST:PORT/NAMA_DATABASE
-   DATABASE_URL="mysql://root:@localhost:3306/sd_kartika_x4"
+   # Runtime aplikasi (Pooler, port 6543)
+   DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+   # Migrasi schema Prisma (Direct, port 5432)
+   DIRECT_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
    ```
-   *(Secara bawaan, username XAMPP adalah `root` dan tanpa password).*
 
 ---
 
 ## ⚡ Cara Menjalankan Aplikasi
 
-Setelah database XAMPP aktif dan database kosong telah dibuat, ikuti langkah berikut untuk menyalakan aplikasi:
+Setelah berkas `.env` terisi dengan kredensial Supabase, ikuti langkah berikut untuk menyalakan aplikasi:
 
 1. **Unduh/Install Dependencies** (jika belum):
    ```bash
@@ -46,7 +48,7 @@ Setelah database XAMPP aktif dan database kosong telah dibuat, ikuti langkah ber
    Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
 
 > [!NOTE]  
-> **Inisialisasi Tabel Otomatis**: Saat halaman website pertama kali dimuat di browser Anda, Next.js akan mendeteksi database kosong di XAMPP, lalu secara otomatis membuat seluruh tabel (`User` & `Registration`) beserta akun uji coba bawaan.
+> **Inisialisasi Tabel Otomatis**: Saat halaman website pertama kali dimuat, Next.js akan mendeteksi database Supabase yang masih kosong, lalu secara otomatis membuat tipe ENUM, seluruh tabel (`User` & `Registration`), beserta akun uji coba bawaan.
 
 ---
 
@@ -68,6 +70,13 @@ Sistem otomatis membuat dua akun pengujian berikut untuk memudahkan evaluasi alu
 
 ---
 
-## 📂 Pilihan Alternatif (Import SQL Manual)
-Jika Anda ingin mengimpor skema database secara manual melalui fitur *Import* phpMyAdmin, Anda dapat menggunakan file SQL yang telah disediakan:
-- Berkas SQL: **[sd_kartika_x4.sql](file:///C:/Users/vionafebiola/KP-SEKOLAH/sd_kartika_x4.sql)** (berada di folder utama proyek).
+## 📂 Pilihan Alternatif (Migrasi via Prisma)
+Selain inisialisasi otomatis saat runtime, Anda juga dapat membuat schema secara manual menggunakan Prisma:
+```bash
+# Sinkronkan schema ke database Supabase tanpa membuat file migrasi
+npx prisma db push
+
+# (Opsional) Isi akun uji coba bawaan
+npx prisma db seed
+```
+> File `sd_kartika_x4.sql` lama merupakan dump MySQL dan **tidak lagi dipakai** setelah migrasi ke PostgreSQL/Supabase.

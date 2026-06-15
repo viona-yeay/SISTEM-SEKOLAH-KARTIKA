@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 import { updateRegistrationStatus } from "@/app/actions/ppdb";
 import { 
   GraduationCap, LogOut, Users, Clock, CheckCircle2, 
-  XCircle, Search, Eye, ThumbsUp, ThumbsDown, UserCheck, ShieldAlert 
+  XCircle, Search, Eye, ThumbsUp, ThumbsDown, UserCheck, ShieldAlert, Images 
 } from "lucide-react";
 
 interface RegistrationItem {
@@ -109,6 +110,13 @@ export default function AdminDashboard({ user, registrations, stats }: AdminDash
           </div>
 
           <div className="flex items-center space-x-4">
+            <Link
+              href="/dashboard/admin/kegiatan"
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-blue-500/30 transition-colors"
+            >
+              <Images className="h-4 w-4" />
+              <span className="hidden sm:inline">Kelola Galeri</span>
+            </Link>
             <span className="hidden sm:inline text-xs text-slate-400">
               Petugas: <strong className="text-white">{user.name}</strong>
               <span className="ml-2 text-[9px] bg-blue-605 bg-blue-600 text-white px-1.5 py-0.5 rounded font-extrabold uppercase">

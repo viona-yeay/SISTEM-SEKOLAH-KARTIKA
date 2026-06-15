@@ -6,8 +6,11 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Supabase: gunakan Connection Pooler (port 6543) untuk runtime aplikasi
+  url       = env("DATABASE_URL")
+  // Supabase: gunakan Direct Connection (port 5432) untuk migrasi schema
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -31,6 +34,17 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   registration Registration?
+}
+
+model Kegiatan {
+  id        String   @id @default(uuid())
+  judul     String
+  kategori  String
+  deskripsi String
+  gambarUrl String // URL publik gambar di Supabase Storage
+  gambarPath String  @default("") // Path objek di bucket (untuk keperluan hapus)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Registration {
