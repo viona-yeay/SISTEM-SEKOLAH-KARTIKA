@@ -11,6 +11,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "SD KARTIKA X-4 - Cerdas, Berkarakter, Berprestasi",
   description: "Selamat datang di website resmi SD KARTIKA X-4. Sekolah dasar berkualitas tinggi dengan kurikulum unggulan, fasilitas lengkap, dan pendaftaran PPDB Online terpadu.",
+  icons: {
+    icon: "/LOGO-kartika.png",
+    shortcut: "/LOGO-kartika.png",
+    apple: "/LOGO-kartika.png",
+  },
 };
 
 export default async function RootLayout({
